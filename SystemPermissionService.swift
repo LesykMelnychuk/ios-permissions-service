@@ -24,14 +24,16 @@ protocol PermissonConfiguration {
 }
 
 extension PermissonConfiguration {
+
   func deniedAlertMessage() -> String {
     return "You can enable access in Privacy Settings"
   }
+
 }
 
-class Permission<T:PermissonConfiguration>{
+class Permission<T: PermissonConfiguration> {
   
-  private var checker:T
+  private var checker: T
   
   init() {
     checker = T()
@@ -40,14 +42,15 @@ class Permission<T:PermissonConfiguration>{
   func preparePermission(sender: UIViewController, granted: (granted: Bool) -> Void) {
     let status = checker.checkStatus()
     let alertController = UIAlertController(title: "Access Denied", message: nil, preferredStyle: .Alert)
-    alertController.addAction(UIAlertAction(title: "Close", style: UIAlertActionStyle.Default,handler: nil))
+    let action = UIAlertAction(title: "Close", style: UIAlertActionStyle.Default, handler: nil)
+    alertController.addAction(action)
     switch status {
     case .NotDetermined:
-      checker.requestStatus({ (successRequestResult) -> Void in
-        dispatch_async(dispatch_get_main_queue(), { () -> Void in
+      checker.requestStatus {
+        (successRequestResult) in dispatch_async(dispatch_get_main_queue()) {
           granted(granted: successRequestResult)
-        })
-      })
+        }
+      }
       return
     case .Authorized:
       granted(granted: true)
@@ -68,4 +71,5 @@ class Permission<T:PermissonConfiguration>{
     }
     sender.presentViewController(alertController, animated: true, completion: nil)
   }
+  
 }
